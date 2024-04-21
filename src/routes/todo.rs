@@ -1,15 +1,21 @@
+use self::models::Todo;
+use test_rocket::*;
 use rocket::serde::json::Json;
-use rocket::serde::{Serialize, Deserialize};
-
-use crate::services::todo;
-
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(crate = "rocket::serde")]
-pub struct Todo {
-    pub desc: String,
-}
+use crate::services::todo::{self, get_all_todo};
 
 #[get("/todo/get-todo")]
 pub fn get_todo() -> Json<Vec<Todo>> {    
-    Json(todo::get_todo())
+    let results = get_all_todo();
+    
+    Json(results)
+}
+
+#[post("/todo/add-todo", format = "json", data = "<td_desc>")]
+pub fn add_todo(td_desc: String) {
+    todo::add_todo(td_desc);
+}
+
+#[delete("/todo/add-todo/<id>")]
+pub fn delete_todo(id: i32) {
+    todo::delete_todo(id);
 }
