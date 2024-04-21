@@ -1,15 +1,23 @@
 mod routes;
 mod services;
+use std::env;
+
 use rocket::http::Method;
 use rocket_cors::{AllowedOrigins, CorsOptions};
 #[macro_use] extern crate rocket;
+use dotenvy::dotenv;
 
 use routes::date::get_current_date;
-use routes::todo::get_todo;
+use routes::todo::{get_todo, add_todo, delete_todo};
 
 #[rocket::main]
 async fn main() {
-    let allowed_origins = AllowedOrigins::some_exact(&["http://127.0.0.1:4200"]);
+
+    dotenv().ok();
+
+    let origins_url = env::var("ALLOWED_ORIGINS").expect("ALLOWED_ORIGINS must be set");
+
+    let allowed_origins = AllowedOrigins::some_exact(&[origins_url]);
 
     let cors = CorsOptions {
         allowed_origins,
@@ -25,7 +33,7 @@ async fn main() {
     .expect("Error while building CORS");
 
     rocket::build()
-        .mount("/api", routes![get_current_date, get_todo])
+        .mount("/api", routes![get_current_date, get_todo, add_todo, delete_todo])
         .attach(cors)
         .launch()
         .await
